@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字冒險遊戲</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        #player-info, #game-messages {
+            width: 80%;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 5px;
+        }
+        #player-info {
+            text-align: left;
+        }
+        #game-messages {
+            height: 300px;
+            overflow-y: auto;
+        }
+        #command-input {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        #command-input input {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #command-input button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #command-input button:hover {
+            background-color: #555;
+        }
+        #quick-commands {
+            margin-top: 20px;
+        }
+        #quick-commands button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #quick-commands button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>文字冒險遊戲</h1>
+    </header>
+    <div id="game-container">
+        <div id="game-messages">
+            <h2>遊戲訊息</h2>
+            <div id="messages"></div>
+        </div>
+        <div id="command-input">
+            <input type="text" id="command" placeholder="輸入指令...">
+            <button onclick="sendCommand()">執行</button>
+        </div>
+        <div id="quick-commands">
+            <button onclick="quickCommand('look')">look</button>
+            <button onclick="quickCommand('attack')">attack</button>
+            <button onclick="quickCommand('use potion')">use potion</button>
+        </div>
+    </div>
+    <script>
+        function sendCommand() {
+            const command = document.getElementById('command').value;
+            if (command) {
+                processCommand(command);
+                document.getElementById('command').value = '';
+            }
+        }
+
+        function quickCommand(cmd) {
+            processCommand(cmd);
+        }
+
+        async function processCommand(command) {
+            const messages = document.getElementById('messages');
+            const newMessage = document.createElement('p');
+
+            try {
+                // 呼叫後端 API 傳送指令
+                const response = await fetch(`/game/command?input=${encodeURIComponent(command)}`);
+
+                if (!response.ok) {
+                    throw new Error(`伺服器錯誤: ${response.status}`);
+                }
+
+                const result = await response.text();
+                newMessage.innerHTML = result; // 顯示後端回應內容
+            } catch (error) {
+                newMessage.textContent = `指令執行失敗: ${error.message}`;
+            }
+
+            messages.appendChild(newMessage);
+            messages.scrollTop = messages.scrollHeight;
+        }
+    </script>
+</body>
+</html>
